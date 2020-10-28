@@ -11,31 +11,30 @@ import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 @RestController
-@RequestMapping("/subscriber")
+@RequestMapping("/subscribe")
 @CrossOrigin(origins = "*")
 public class SubscriberController {
-    private final static String QUEUE_NAME = "hello";
-
     Channel channel;
     Connection connection;
     List<String> response = new ArrayList<String>();
 
-    public SubscriberController() throws IOException, TimeoutException {
+    private void startConnectionWithRabbitMQ(String channelName) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         this.connection = factory.newConnection();
         this.channel = connection.createChannel();
 
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        channel.queueDeclare(channelName, false, false, false, null);
     }
 
-    @GetMapping
-    public List<String> receiveMessage() throws IOException, TimeoutException {
+    @GetMapping("/{channelName}")
+    public List<String> receiveMessage(@PathVariable String channelName) throws IOException, TimeoutException {
+        startConnectionWithRabbitMQ(channelName);
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
             response.add(message);
         };
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+        channel.basicConsume(channelName, true, deliverCallback, consumerTag -> { });
 
         return response;
     }
