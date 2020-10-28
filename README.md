@@ -1,4 +1,4 @@
-# Publish
+# Publish (POST)
 
 ```
  http://localhost:8080/publish/channel1
@@ -8,7 +8,7 @@
 Escribir el mensaje en el body.
 ```
 
-# Subscribe
+# Subscribe (GET)
 ```
  http://localhost:8081/subscribe/channel1
 ```

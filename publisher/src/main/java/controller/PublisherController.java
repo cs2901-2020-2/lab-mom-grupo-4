@@ -1,5 +1,7 @@
 package controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
@@ -14,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 public class PublisherController {
 
     @PostMapping("/{channelName}")
-    public String sendMessage(@RequestBody String message, @PathVariable String channelName){
+    public Object sendMessage(@RequestBody String message, @PathVariable String channelName){
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
@@ -25,7 +27,7 @@ public class PublisherController {
             channel.basicPublish("", channelName, null, message.getBytes());
 
         } catch (TimeoutException | IOException e) {
-            e.printStackTrace();
+            return new ResponseEntity<>("RabbitMQ communication error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         StringBuilder response = new StringBuilder();
