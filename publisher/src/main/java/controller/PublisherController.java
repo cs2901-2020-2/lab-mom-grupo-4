@@ -13,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 @RestController
 @RequestMapping("/publish")
 @CrossOrigin(origins = "*")
-public class PublisherController {
+public class PublisherController{
 
     @PostMapping("/{channelName}")
     public Object sendMessage(@RequestBody String message, @PathVariable String channelName){
@@ -27,7 +27,7 @@ public class PublisherController {
             channel.basicPublish("", channelName, null, message.getBytes());
 
         } catch (TimeoutException | IOException e) {
-            return new ResponseEntity<>("RabbitMQ communication error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("RabbitMQ communication error", HttpStatus.BAD_GATEWAY);
         }
 
         StringBuilder response = new StringBuilder();

@@ -12,9 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.concurrent.TimeUnit;
+
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = PublisherController.class)
-class PublisherAppLab11Group4ApplicationTests {
+class PublisherAppLab11Group4ApplicationTests{
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,6 +32,22 @@ class PublisherAppLab11Group4ApplicationTests {
         mockMvc.perform(post("/publish/channel1")
                 .content("Mensaje"))
                 .andExpect(status().isOk());
+
+        Process processStop = Runtime.getRuntime().exec("brew services stop rabbitmq");
+        processStop.waitFor();
+        
+        mockMvc.perform(post("/publish/channel1")
+        .content("Mensaje"))
+        .andExpect(status().isBadGateway());
+        
+        Process processStart = Runtime.getRuntime().exec("brew services start rabbitmq");
+        processStart.waitFor();
+        
+        TimeUnit.SECONDS.sleep(10);
+
+        mockMvc.perform(post("/publish/channel1")
+        .content("Mensaje"))
+        .andExpect(status().isOk());
     }
 
 }

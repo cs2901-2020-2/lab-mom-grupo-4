@@ -7,6 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeoutException;
 public class SubscriberController {
     Channel channel;
     Connection connection;
-    List<String> response = new ArrayList<String>();
+    List<String> response = new ArrayList<>();
 
     private void startConnectionWithRabbitMQ(String channelName) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
@@ -31,7 +32,7 @@ public class SubscriberController {
     public List<String> receiveMessage(@PathVariable String channelName) throws IOException, TimeoutException {
         startConnectionWithRabbitMQ(channelName);
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), "UTF-8");
+            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
             response.add(message);
         };
         channel.basicConsume(channelName, true, deliverCallback, consumerTag -> { });
